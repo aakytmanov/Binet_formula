@@ -66,6 +66,7 @@ Binet:=proc(AA,x2,phi,Phi)
  R:=p/(2*N)*(phi(x2)-phi(0))+int(phi,0..x2)+1/I*int(ffam*G1+ffap*G2,0..infinity)-1/I*int(ffbm*G1+ffbp*G2,0..infinity):
  L:=p/N*(`+`(op(map(x->1/(z+x)^2,Q(AA,x2))))):
  R1:=simplify(R):
+ print(L=R1, varphi(s)=simplify(Phi(s,z,AA,x2)));
  return([L,simplify(R),simplify(Phi(s,z,AA,x2))]):
 end proc:
 
