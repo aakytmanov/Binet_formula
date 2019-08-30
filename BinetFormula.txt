@@ -1,0 +1,73 @@
+BinetFormula:=module()
+export P, G, Q, Phi, Binet;
+
+option package;
+
+P:=proc(A,z)
+ local K,N,Z;
+ N:=nops(A)+1;
+ K:=[seq(i,i=1..N-1)];
+ Z:=zip((a,b)->a^b,z,K);
+ Z:=`+`(op(zip((a,b)->a*b,A,Z)))+z^N;
+ return(Z);
+end proc:
+
+G:=proc(A,z)
+ local N;
+ N:=nops(A)+1;
+ return(P(A,z)/(1-z^N));
+end proc:
+
+Q:=proc(AA,x2)
+ local A,CutInd,i,In,n,N,q,Q,T,U:
+ A:=[op(AA),1]:
+ n:=nops(A):
+ U:=zip((a,b)->a*b,A,[seq(i,i=1..n)]):
+ U:=[seq(`if`(U[i]=0,NULL,i), i=1..nops(U))]:
+ q:=iquo(x2,n):
+ In:=[seq(1,i=1..nops(U))]:
+ Q:=U:
+ for i from 1 to q do
+  T:=U+n*i*In:
+  Q:=[op(Q),op(T)]:
+ end do:
+ CutInd:=[seq(`if`(Q[i]>x2,NULL,i), i=1..nops(Q))];
+ return(Q[CutInd])
+end proc:
+
+Phi:=proc(s,z,AA,x2)
+ local A,a,J,N,phi,psi,psi1,q,Q1,Q2:
+ A:=[op(AA),1]:
+ N:=nops(A):
+ q:=Q(AA,x2):
+ J:=[op({seq(i,i=1..x2*N)} minus {op(N*q)})]:
+ a:=J/N:
+ Q1:=`*`(op(map(x->(1-s/x)*exp(s/x),a))):
+ psi:=`*`(op(map(x->(1-s/x),q))):
+ psi1:=diff(psi,s):
+ #psi1:=eval(Physics:-diff(psi,s), s=Complex(x,y)):
+ Q2:=`+`(op(map(x->psi/subs(s=x,psi1)/(s-x)/simplify(subs(s=x,Q1))/exp(x^2),q))):
+ return(simplify(Q1*Q2*e^(s^2)/(z+s)^2)):
+end proc:
+
+Binet:=proc(AA,x2,phi,Phi)
+ local A,i,ffam,ffap,ffbm,ffbp,G1,G2,K,L,R,R1,N,p,w,S;
+ A:=[op(AA),1]:
+ N:=nops(A):
+ p:=P(AA,1):
+
+ ffam:=x->phi(-I*x,z,AA,x2):
+ ffap:=x->phi(I*x,z,AA,x2):
+ ffbm:=x->phi(x2-I*x,z,AA,x2):
+ ffbp:=x->phi(x2+I*x,z,AA,x2):
+ 
+ G1:=y->G(AA,exp(-2*Pi*y));
+ G2:=y->1+G(AA,exp(2*Pi*y));
+ R:=p/(2*N)*(phi(x2)-phi(0))+int(phi,0..x2)+1/I*int(ffam*G1+ffap*G2,0..infinity)-1/I*int(ffbm*G1+ffbp*G2,0..infinity):
+ L:=p/N*(`+`(op(map(x->1/(z+x)^2,Q(AA,x2))))):
+ R1:=simplify(R):
+ return([L,simplify(R),simplify(Phi(s,z,AA,x2))]):
+end proc:
+
+
+end module:
